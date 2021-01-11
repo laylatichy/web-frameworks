@@ -22,15 +22,19 @@ namespace :ci do
     files.each do |file|
       if file.match(File::SEPARATOR) && !file.start_with?(".")
         parts = file.split(File::SEPARATOR)
+        if file.end_with?("Dockerfile")
+          language, _ = file.split(File::SEPARATOR)
+          
+          Dir.glob("#{language}/*/config.yaml").each do |path|
+            subs = path.split(File::SEPARATOR)
+            frameworks << subs[0..1].join(File::SEPARATOR)
+          end
+        else
         frameworks << parts[0..1].join(File::SEPARATOR)
-      end
-      if file.end_with?("Dockerfile")
-        language, _ = file.split(File::SEPARATOR)
-        Dir.glob("#{language}/*/config.yaml").each do |path|
-          parts = file.split(File::SEPARATOR)
-          frameworks << parts[0..1].join(File::SEPARATOR)
         end
       end
+      
+      
     end
 
     matrix = { include: [] }
